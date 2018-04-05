@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="0">
+
+        <template id="sequra_acquirer_first_receive_button">
+            <form class="oe_sequra_payment_form" t-if="acquirer" action="/payment/sequra" method="post" target="_self">
+                <input type="hidden" name="acquirer_id" t-att-value="acquirer.id" />
+                <input type="hidden" name="payment_method" t-att-value="'i1'" />
+
+                <H4>Método de envío</H4>
+                <ul class="media-list">
+                    <li><input type="radio" name="shipping_method" value="normal-3 days" checked="true"/>3 días</li>
+                    <li><input type="radio" name="shipping_method" value="immediate-1 day"/>1 día</li>
+                </ul>
+
+                <!-- submit -->
+                <button type="submit" width="100px"
+                    t-att-class="submit_class">
+                    <img t-if="not submit_txt" src="/payment_sequra/static/src/img/sequra_icon.png"/>
+                    <span t-if="submit_txt"><t t-esc="submit_txt"/> <span class="fa fa-long-arrow-right"/></span>
+                </button>
+            </form>
+        </template>
+
+        <template id="sequra_acquirer_part_payment_button">
+            <form class="oe_sequra_payment_form" t-if="acquirer" action="/payment/sequra" method="post" target="_self">
+                <input type="hidden" name="acquirer_id" t-att-value="acquirer.id" />
+                <input type="hidden" name="payment_method" t-att-value="'pp3'" />
+
+                <H4>Método de envío</H4>
+                <ul class="media-list">
+                    <li><input type="radio" name="shipping_method" value="normal-3 days" checked="true"/>3 días</li>
+                    <li><input type="radio" name="shipping_method" value="immediate-1 day"/>1 día</li>
+                </ul>
+
+                <!-- submit -->
+                <button type="submit" width="100px"
+                    t-att-class="submit_class">
+                    <img t-if="not submit_txt" src="/payment_sequra/static/src/img/sequra_icon.png"/>
+                    <span t-if="submit_txt"><t t-esc="submit_txt"/> <span class="fa fa-long-arrow-right"/></span>
+                </button>
+            </form>
+        </template>
+    </data>
+</openerp>

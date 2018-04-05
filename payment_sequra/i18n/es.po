@@ -1,0 +1,28 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* duval_custom_cepta
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-07-12 19:55+0000\n"
+"PO-Revision-Date: 2016-07-12 19:55+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+
+#. module: payment_sequra
+#: view:payment.acquirer:payment_sequra.payment_acquirer_sequra_first_receive
+msgid "First receive, payment after"
+msgstr "Recibe primero, paga después"
+
+#. module: payment_sequra
+#: view:payment.acquirer:payment_sequra.payment_acquirer_sequra_first_receive
+msgid "Part payment"
+msgstr "Fracciona tu pago"
+

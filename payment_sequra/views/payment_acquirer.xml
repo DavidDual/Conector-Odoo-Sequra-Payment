@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="acquirer_form_sequra" model="ir.ui.view">
+            <field name="name">acquirer.form.paypal</field>
+            <field name="model">payment.acquirer</field>
+            <field name="inherit_id" ref="payment.acquirer_form"/>
+            <field name="arch" type="xml">
+                <field name="fees_active" position="after">
+                    <field name="sequra_user" attrs="{'invisible': [('provider', '!=', 'sequra')]}"/>
+                    <field name="sequra_pass" attrs="{'invisible': [('provider', '!=', 'sequra')]}"/>
+                    <field name="sequra_merchant" attrs="{'invisible': [('provider', '!=', 'sequra')]}"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="transaction_form_sequra" model="ir.ui.view">
+            <field name="name">acquirer.transaction.form.sequra</field>
+            <field name="model">payment.transaction</field>
+            <field name="inherit_id" ref="payment.transaction_form"/>
+            <field name="arch" type="xml">
+                <field name="reference" position="after">
+                    <field name="provider"/>
+                </field>
+
+                <xpath expr='//notebook' position='inside'>
+                    <page string="Sequra TX Details" attrs="{'invisible': [('provider', '!=', 'sequra')]}">
+                        <group >
+                            <field name="order_sequra_ref" readonly="1" />
+                            <field name="sequra_conf_resp_status_code" />
+                            <field name="sequra_conf_resp_reason" />
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

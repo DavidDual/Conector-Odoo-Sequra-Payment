@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="javascripts_head" inherit_id="website.layout">
+            <xpath expr="//footer[last()]" position="after">
+                <script type="text/javascript" src="/payment_sequra/static/src/js/template.js"></script>
+            </xpath>
+        </template>
+    </data>
+</openerp>

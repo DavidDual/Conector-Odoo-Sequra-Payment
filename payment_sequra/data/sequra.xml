@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <record id="payment_acquirer_sequra_first_receive" model="payment.acquirer">
+            <field name="name">Recibe primero, paga después</field>
+            <field name="provider">sequra</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="view_template_id" ref="payment_sequra.sequra_acquirer_first_receive_button"/>
+            <field name="environment">test</field>
+            <field name="pre_msg">Recibe primero, paga después</field>
+            <field name="website_published">True</field>
+            <field name="sequra_user">dummy</field>
+            <field name="sequra_pass">ZqbjrN6bhPYVIyram3wcuQgHUmP1C4</field>
+            <field name="sequra_merchant">dummy</field>
+        </record>
+
+        <record id="payment_acquirer_sequra_part_payment" model="payment.acquirer">
+            <field name="name">Fracciona tu pago</field>
+            <field name="provider">sequra</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="view_template_id" ref="payment_sequra.sequra_acquirer_part_payment_button"/>
+            <field name="environment">test</field>
+            <field name="pre_msg">Fracciona tu pago</field>
+            <field name="website_published">True</field>
+            <field name="sequra_user">dummy</field>
+            <field name="sequra_pass">ZqbjrN6bhPYVIyram3wcuQgHUmP1C4</field>
+            <field name="sequra_merchant">dummy</field>
+        </record>
+    </data>
+</openerp>
