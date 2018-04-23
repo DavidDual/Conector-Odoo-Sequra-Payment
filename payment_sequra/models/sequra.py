@@ -48,7 +48,6 @@ class AcquirerSequra(models.Model):
             return requests.put(
                 url,
                 auth=(self.sequra_user, self.sequra_pass),
-                verify=False,
                 data=data,
                 headers=headers
             )

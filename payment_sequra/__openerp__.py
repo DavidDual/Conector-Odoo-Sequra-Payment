@@ -6,7 +6,7 @@
     'version': '1.0',
     'description': """SeQura Payment Acquirer""",
     'author': 'Raul Fidel Rodríguez Trasanco',
-    'depends': ['payment', 'website', 'website_sale'],
+    'depends': ['delivery','payment', 'website', 'website_sale'],
     'data': [
         'views/sequra.xml',
         'views/payment_acquirer.xml',
