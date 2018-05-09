@@ -7,12 +7,6 @@
                 <input type="hidden" name="acquirer_id" t-att-value="acquirer.id" />
                 <input type="hidden" name="payment_method" t-att-value="'i1'" />
 
-                <H4>Método de envío</H4>
-                <ul class="media-list">
-                    <li><input type="radio" name="shipping_method" value="normal-3 days" checked="true"/>3 días</li>
-                    <li><input type="radio" name="shipping_method" value="immediate-1 day"/>1 día</li>
-                </ul>
-
                 <!-- submit -->
                 <button type="submit" width="100px"
                     t-att-class="submit_class">
@@ -26,12 +20,6 @@
             <form class="oe_sequra_payment_form" t-if="acquirer" action="/payment/sequra" method="post" target="_self">
                 <input type="hidden" name="acquirer_id" t-att-value="acquirer.id" />
                 <input type="hidden" name="payment_method" t-att-value="'pp3'" />
-
-                <H4>Método de envío</H4>
-                <ul class="media-list">
-                    <li><input type="radio" name="shipping_method" value="normal-3 days" checked="true"/>3 días</li>
-                    <li><input type="radio" name="shipping_method" value="immediate-1 day"/>1 día</li>
-                </ul>
 
                 <!-- submit -->
                 <button type="submit" width="100px"

@@ -52,7 +52,6 @@ class SequraController(http.Controller):
 
                         post = {
                             'merchant_id': tx.acquirer_id.sequra_merchant,
-                            'shipping_method': order.shipping_method,
                         }
 
                         data = self._get_data_json(post, order, 'confirmed')
@@ -110,8 +109,7 @@ class SequraController(http.Controller):
             if r.status_code == 200:
                 order = request.website.sale_get_order()
                 order.write({
-                    'sequra_location': location,
-                    'shipping_method': post.get('shipping_method')
+                    'sequra_location': location
                 })
                 values = {
                     'partner': order.partner_id.id,
@@ -253,8 +251,6 @@ class SequraController(http.Controller):
         partner_invoice_id = order.partner_invoice_id
         partner_shipping_id = order.partner_shipping_id
 
-        shipping_method = post.get('shipping_method').split('-')
-
         model_data_obj = pool['ir.model.data']
         company_obj = pool['res.company']
         company_id = model_data_obj.xmlid_to_res_id(cr, SUPERUSER_ID, 'base.main_company')
@@ -284,25 +280,24 @@ class SequraController(http.Controller):
                         "cart_ref": order.name,
                         "currency": currency or "EUR",
                         "gift": False,
-                        "items": self._get_items(order, shipping_method[0]),
+                        "items": self._get_items(order, ''),#@todo second argument should be shipping method
                         "order_total_with_tax": int(round((order.amount_total) * 100, 2))
                     },
                     "delivery_address": self._get_address(partner_shipping_id),
                     "invoice_address": self._get_address(partner_invoice_id),
                     "customer": self._get_customer_data(partner_id, order.id),
                     "delivery_method": {
-                        "name": shipping_method[0],
-                        "days": shipping_method[1]
+                        "name": "no shipping",#@todo
                     },
                     "gui": {
-                        "layout": "desktop"
+                        "layout": "desktop"#@todo
                     },
                     "platform": {
                         "name": "Odoo",
                         "version": release.version,
                         "uname": " ".join(os.uname()),
                         "db_name": "postgresql",
-                        "db_version": "9.4"
+                        "db_version": "9.4"#@todo
                     }
                 }
             }
