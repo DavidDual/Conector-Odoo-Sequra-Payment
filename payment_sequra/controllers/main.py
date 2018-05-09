@@ -210,17 +210,15 @@ class SequraController(http.Controller):
                 item = {
                     "reference": str(sol.product_id.id),
                     "name": sol.name,
-                    "tax_rate": 0,
                     "quantity": int(sol.product_uom_qty),
                     "price_with_tax": price_with_tax,
                     "total_with_tax": total_with_tax,
-                    "price_without_tax": price_without_tax,
-                    "total_without_tax": total_without_tax,
-                    "downloadable": False,
-                    "supplier": "",
+                    "downloadable": False,#@todo
                     "product_id": sol.product_id.id,
-                    "url": ""
                 }
+                if sol.product_id.type=='service':
+                    item['type'] = 'service'
+                    item['ends_in'] = sol.product_id.ends_in
             else:
                 item = {
                     "type": "handling",
