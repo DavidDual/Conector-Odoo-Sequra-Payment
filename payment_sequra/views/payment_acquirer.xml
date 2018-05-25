@@ -6,11 +6,15 @@
             <field name="model">payment.acquirer</field>
             <field name="inherit_id" ref="payment.acquirer_form"/>
             <field name="arch" type="xml">
-                <field name="fees_active" position="after">
-                    <field name="sequra_user" attrs="{'invisible': [('provider', '!=', 'sequra')]}"/>
-                    <field name="sequra_pass" attrs="{'invisible': [('provider', '!=', 'sequra')]}"/>
-                    <field name="sequra_merchant" attrs="{'invisible': [('provider', '!=', 'sequra')]}"/>
-                </field>
+                <xpath expr='//group[@name="acquirer_display"]' position='after'>
+                    <group attrs="{'invisible': [('provider', '!=', 'sequra')]}">                       <field name="sequra_user" attrs="{'invisible': [('provider', '!=', 'sequra')]}"/>
+                        <field name="sequra_pass" attrs="{'invisible': [('provider', '!=', 'sequra')]}"/>
+                        <field name="sequra_merchant" attrs="{'invisible': [('provider', '!=', 'sequra')]}"/>
+                    </group>
+                    <group attrs="{'invisible': [('provider', '!=', 'sequra')]}">
+                        <field name="send_quotation"/>
+                    </group>
+                </xpath>
             </field>
         </record>
 
