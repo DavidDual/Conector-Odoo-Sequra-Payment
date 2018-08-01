@@ -48,7 +48,6 @@ class AcquirerSequra(models.Model):
             return requests.put(
                 url,
                 auth=(self.sequra_user, self.sequra_pass),
-                verify=False,
                 data=data,
                 headers=headers
             )
@@ -56,6 +55,7 @@ class AcquirerSequra(models.Model):
     sequra_user = fields.Char('Sequra User')
     sequra_pass = fields.Char('Sequra Password')
     sequra_merchant = fields.Char('Sequra Merchant')
+    send_quotation = fields.Boolean('Send quotation', default=True)
 
 
 class TxSequra(models.Model):

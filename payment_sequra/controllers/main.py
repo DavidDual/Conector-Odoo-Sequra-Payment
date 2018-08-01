@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from openerp import http
+from openerp import release
 from openerp.http import request
 from openerp import SUPERUSER_ID, fields
 from werkzeug.wrappers import BaseResponse as Response
@@ -8,6 +9,7 @@ from openerp.tools.translate import _
 from datetime import datetime
 
 import re
+import os
 import json
 import pytz
 import logging
@@ -50,12 +52,10 @@ class SequraController(http.Controller):
 
                         post = {
                             'merchant_id': tx.acquirer_id.sequra_merchant,
-                            'shipping_method': order.shipping_method,
                         }
 
                         data = self._get_data_json(post, order, 'confirmed')
                         endpoint = order.sequra_location
-
                         response = tx.acquirer_id.request(endpoint, method='PUT', data=data)
 
                         values = {
@@ -107,21 +107,18 @@ class SequraController(http.Controller):
             method_payment = post.get('payment_method')
             r = self.fetch_id_form(acquirer_id, location, method_payment)
             if r.status_code == 200:
-                iframe = r.text.replace('\n', '')
                 order = request.website.sale_get_order()
                 order.write({
-                    'sequra_location': location,
-                    'shipping_method': post.get('shipping_method')
+                    'sequra_location': location
                 })
                 values = {
                     'partner': order.partner_id.id,
                     'order': order,
                     'errors': [],
-                    'iframe': iframe
+                    'iframe': r.content
                 }
                 self.render_payment_acquirer(order, values)
                 return request.website.render("payment_sequra.payment", values)
-
         json = r.json()
         error = json and len(json['errors']) and json['errors'][0] or ''
         return request.website.render("payment_sequra.500", {'error': error})
@@ -161,26 +158,31 @@ class SequraController(http.Controller):
             'amount': int(round(o.amount_total * 100, 2)),
             'currency': o.currency_id.name
         } for o in order_ids]
-
-        return {
-            "given_names": partner_id.name1,
-            "surnames": partner_id.surname,
-            "email": partner_id.email or "",
-            "language_code": "es-ES",
-            "ref": partner_id.id,
-            'company': partner_id.company_id.name or "",
-            'logged_in': 'unknown',
-            'ip_number': '12.23.34.45',
-            'user_agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36',
-            'vat_number': partner_id.vat or "",
-            'nin': partner_id.vat or "",
-            'previous_orders': previous_orders
-        }
+        customer = self._get_address(partner_id)
+        if "HTTP_X_FORWARDED_FOR" in request.httprequest.environ:
+        # Virtual host        
+            ip = request.httprequest.environ["HTTP_X_FORWARDED_FOR"]
+        elif "HTTP_HOST" in request.httprequest.environ:
+            # Non-virtualhost
+            ip = request.httprequest.environ["REMOTE_ADDR"]
+        customer['email'] =  partner_id.email or ""
+        customer['language_code'] = "es-ES"
+        customer['ref'] = partner_id.id
+        customer['company'] = partner_id.company_id.name or ""
+        customer['logged_in'] = 'unknown'
+        customer['ip_number'] = ip
+        customer['user_agent'] = request.httprequest.environ["HTTP_USER_AGENT"]
+        customer['vat_number'] = partner_id.company_id.vat or ""
+        customer['previous_orders'] = previous_orders
+        return customer
 
     def _get_address(self, partner_id):
+        def _partner_split_name(partner_name):
+            return [' '.join(partner_name.split()[:-1]), ' '.join(partner_name.split()[-1:])]
+
         return {
-            "given_names": partner_id.name1,
-            "surnames": partner_id.surname,
+            "given_names": _partner_split_name(partner_id.name)[1],
+            "surnames": _partner_split_name(partner_id.name)[0],
             "company": partner_id.company_id.name or "",
             "address_line_1": partner_id.street or "",
             "address_line_2": partner_id.street2 or "",
@@ -189,6 +191,7 @@ class SequraController(http.Controller):
             "country_code": partner_id.country_id.code or "",
             "phone": partner_id.phone or "",
             "mobile_phone": partner_id.mobile or "",
+            "nin": partner_id.vat[2:] or ""
         }
 
     def _get_items(self, order_id, shipping_name):
@@ -203,23 +206,19 @@ class SequraController(http.Controller):
             total_with_tax = int(round((price_subtotal + tax) * 100, 2))
             price_with_tax = int(round(((price_subtotal + tax)/sol.product_uom_qty) * 100, 2))
 
-
-
             if order_id.carrier_id.name != sol.name:
                 item = {
                     "reference": str(sol.product_id.id),
                     "name": sol.name,
-                    "tax_rate": 0,
                     "quantity": int(sol.product_uom_qty),
                     "price_with_tax": price_with_tax,
                     "total_with_tax": total_with_tax,
-                    "price_without_tax": price_without_tax,
-                    "total_without_tax": total_without_tax,
-                    "downloadable": False,
-                    "supplier": "",
+                    "downloadable": False,#@todo
                     "product_id": sol.product_id.id,
-                    "url": ""
                 }
+                if sol.product_id.type=='service':
+                    item['type'] = 'service'
+                    item['ends_in'] = sol.product_id.ends_in
             else:
                 item = {
                     "type": "handling",
@@ -238,8 +237,6 @@ class SequraController(http.Controller):
         cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
 
         base_url = pool['ir.config_parameter'].get_param(cr, SUPERUSER_ID, 'web.base.url')
-        if re.match(r'http:', base_url):
-            base_url = base_url.replace('http', 'https')
 
         notify_url = '%s/checkout/sequra-ipn' % base_url
 
@@ -251,8 +248,6 @@ class SequraController(http.Controller):
         partner_id = order.partner_id
         partner_invoice_id = order.partner_invoice_id
         partner_shipping_id = order.partner_shipping_id
-
-        shipping_method = post.get('shipping_method').split('-')
 
         model_data_obj = pool['ir.model.data']
         company_obj = pool['res.company']
@@ -283,25 +278,24 @@ class SequraController(http.Controller):
                         "cart_ref": order.name,
                         "currency": currency or "EUR",
                         "gift": False,
-                        "items": self._get_items(order, shipping_method[0]),
+                        "items": self._get_items(order, ''),#@todo second argument should be shipping method
                         "order_total_with_tax": int(round((order.amount_total) * 100, 2))
                     },
                     "delivery_address": self._get_address(partner_shipping_id),
                     "invoice_address": self._get_address(partner_invoice_id),
                     "customer": self._get_customer_data(partner_id, order.id),
                     "delivery_method": {
-                        "name": shipping_method[0],
-                        "days": shipping_method[1]
+                        "name": "no shipping",#@todo
                     },
                     "gui": {
-                        "layout": "desktop"
+                        "layout": "desktop"#@todo
                     },
                     "platform": {
-                        "name": "www.mbinteriorisme.com",
-                        "version": "1.1",
-                        "uname": "",
+                        "name": "Odoo",
+                        "version": release.version,
+                        "uname": " ".join(os.uname()),
                         "db_name": "postgresql",
-                        "db_version": "9.4"
+                        "db_version": "9.4"#@todo
                     }
                 }
             }
